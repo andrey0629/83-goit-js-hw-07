@@ -1,8 +1,6 @@
 import { galleryItems } from './gallery-items.js';
 // Change code below this line
 
-console.log(galleryItems);
-
 const gallery = document.querySelector('.gallery');
 
 function createGalleryItem({ preview, original, description }) {
@@ -16,7 +14,6 @@ function createGalleryItem({ preview, original, description }) {
   const image = document.createElement('img');
   image.classList.add('gallery__image');
   image.src = preview;
-  image.setAttribute('data-source', original);
   image.alt = description;
 
   link.appendChild(image);
@@ -31,7 +28,7 @@ function openModal(event) {
     return;
   }
 
-  const imageSrc = event.target.dataset.source;
+  const imageSrc = event.target.src;
   const imageAlt = event.target.alt;
 
   const instance = basicLightbox.create(`
@@ -39,9 +36,62 @@ function openModal(event) {
   `);
 
   instance.show();
+
+  instance.element().addEventListener('wheel', handleMouseScroll);
+  document.addEventListener('keydown', handleKeyDown);
+}
+
+function handleMouseScroll(event) {
+  const instance = basicLightbox.getInstance();
+  if (event.deltaY > 0) {
+    instance.next();
+  } else {
+    instance.prev();
+  }
+}
+
+function handleKeyDown(event) {
+  const ESC_KEY_CODE = 'Escape';
+  const ENTER_KEY_CODE = 'Enter';
+  const LEFT_ARROW_KEY_CODE = 'ArrowLeft';
+  const UP_ARROW_KEY_CODE = 'ArrowUp';
+  const RIGHT_ARROW_KEY_CODE = 'ArrowRight';
+  const DOWN_ARROW_KEY_CODE = 'ArrowDown';
+
+  const instance = basicLightbox.getInstance();
+
+  if (event.key === ESC_KEY_CODE) {
+    if (instance) {
+      instance.close();
+    }
+  }
+
+  if (event.key === ENTER_KEY_CODE) {
+    window.location.href = window.location.href;
+  }
+
+  if (
+    event.key === LEFT_ARROW_KEY_CODE ||
+    event.key === UP_ARROW_KEY_CODE
+  ) {
+    if (instance) {
+      instance.prev();
+    }
+  }
+
+  if (
+    event.key === RIGHT_ARROW_KEY_CODE ||
+    event.key === DOWN_ARROW_KEY_CODE
+  ) {
+    if (instance) {
+      instance.next();
+    }
+  }
 }
 
 gallery.addEventListener('click', openModal);
 
-const galleryMarkup = galleryItems.map(createGalleryItem).join('');
-gallery.innerHTML = galleryMarkup;
+const galleryMarkup = galleryItems.map(createGalleryItem);
+gallery.append(...galleryMarkup);
+
+

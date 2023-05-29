@@ -24,29 +24,13 @@ function createGalleryItem({ preview, original, description }) {
   return galleryItem;
 }
 
-gallery.addEventListener('click', (event) => {
-  event.preventDefault();
-  if (event.target.nodeName !== 'IMG') {
-    return;
-  }
+const galleryMarkup = galleryItems.map(createGalleryItem);
+gallery.append(...galleryMarkup);
 
-  const options = {
+document.addEventListener('DOMContentLoaded', () => {
+  const lightbox = new SimpleLightbox('.gallery a', {
     captionsData: 'alt',
     captionDelay: 250,
-    captionPosition: 'bottom',
-    captionClass: 'simple-lightbox__caption',
-    history: true,
-    focus: true,
-  };
-
-  const instance = SimpleLightbox.open({
-    elements: galleryItems.map(({ original, description }) => ({
-      src: original,
-      title: description,
-    })),
-    ...options,
+    animationSpeed: 400,
   });
 });
-
-const galleryMarkup = galleryItems.map(createGalleryItem).join('');
-gallery.insertAdjacentHTML('beforeend', galleryMarkup);
