@@ -3,64 +3,45 @@ import { galleryItems } from './gallery-items.js';
 
 console.log(galleryItems);
 
-document.addEventListener('DOMContentLoaded', () => {
-  const gallery = document.querySelector('.gallery');
-  const lightbox = document.getElementById('lightbox');
-  const lightboxImage = lightbox.querySelector('.lightbox__image');
+const gallery = document.querySelector('.gallery');
 
-  // Render gallery items
-  galleryItems.forEach((item) => {
-    const galleryItem = document.createElement('li');
-    galleryItem.classList.add('gallery__item');
+function createGalleryItem({ preview, original, description }) {
+  const galleryItem = document.createElement('li');
+  galleryItem.classList.add('gallery__item');
 
-    const link = document.createElement('a');
-    link.classList.add('gallery__link');
-    link.href = item.original;
+  const link = document.createElement('a');
+  link.classList.add('gallery__link');
+  link.href = original;
 
-    const image = document.createElement('img');
-    image.classList.add('gallery__image');
-    image.src = item.preview;
-    image.dataset.source = item.original;
-    image.alt = item.description;
+  const image = document.createElement('img');
+  image.classList.add('gallery__image');
+  image.src = preview;
+  image.setAttribute('data-source', original);
+  image.alt = description;
 
-    link.appendChild(image);
-    galleryItem.appendChild(link);
-    gallery.appendChild(galleryItem);
-  });
+  link.appendChild(image);
+  galleryItem.appendChild(link);
 
-  // Open lightbox on image click
-  gallery.addEventListener('click', (event) => {
-    event.preventDefault();
-    const target = event.target;
+  return galleryItem;
+}
 
-    if (target.classList.contains('gallery__image')) {
-      const largeImageURL = target.dataset.source;
-      lightboxImage.src = largeImageURL;
-      openLightbox();
-    }
-  });
-
-  // Close lightbox on overlay click
-  lightbox.addEventListener('click', (event) => {
-    if (event.target === lightbox || event.target === lightboxImage) {
-      closeLightbox();
-    }
-  });
-
-  // Close lightbox on Escape key press
-  document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape') {
-      closeLightbox();
-    }
-  });
-
-  function openLightbox() {
-    lightbox.style.display = 'flex';
-    document.body.classList.add('no-scroll');
+function openModal(event) {
+  event.preventDefault();
+  if (event.target.nodeName !== 'IMG') {
+    return;
   }
 
-  function closeLightbox() {
-    lightbox.style.display = 'none';
-    document.body.classList.remove('no-scroll');
-  }
-});
+  const imageSrc = event.target.dataset.source;
+  const imageAlt = event.target.alt;
+
+  const instance = basicLightbox.create(`
+    <img src="${imageSrc}" alt="${imageAlt}" width="800" height="600">
+  `);
+
+  instance.show();
+}
+
+gallery.addEventListener('click', openModal);
+
+const galleryMarkup = galleryItems.map(createGalleryItem).join('');
+gallery.innerHTML = galleryMarkup;
